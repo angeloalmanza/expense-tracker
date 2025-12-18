@@ -12,7 +12,7 @@ const BalanceCard = ({ transactions }) => {
   const balance = income - expenses;
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-lg mb-4 flex justify-around gap-2">
+    <div className="bg-white p-4 rounded-lg shadow-lg mb-4 flex flex-col gap-4 md:flex-row md:justify-around">
       <div>
         <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold text-gray-800">
           <Wallet className="w-5 h-5 " /> Saldo
