@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\AiProvider;
+use App\Enums\TransactionType;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
@@ -55,7 +56,7 @@ class AiInsightsService
 
             $target['numero_transazioni']++;
 
-            if ($t->type === 'income') {
+            if ($t->type === TransactionType::Income) {
                 $target['entrate'] += $amount;
             } else {
                 $target['uscite'] += $amount;
