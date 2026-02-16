@@ -47,6 +47,8 @@ Live: [spendify-app.netlify.app](https://spendify-app.netlify.app/)
 - Export CSV e JSON
 - Paginazione tabella transazioni
 - Profilo utente con selezione avatar
+- **AI categorizzazione** — suggerimento automatico della categoria basato sul nome della transazione
+- **AI insight mensili** — analisi in linguaggio naturale delle spese in dashboard
 - **Dark / Light mode** con preferenza salvata
 
 ## Tech Stack
@@ -66,6 +68,12 @@ Live: [spendify-app.netlify.app](https://spendify-app.netlify.app/)
 - Resend (email transazionali)
 - PostgreSQL
 - PHP Enums + Form Requests + Service layer
+
+### AI
+- Groq API (Llama 3.1 8B per categorizzazione, Llama 3.3 70B per insight)
+- Interfaccia astratta (`AiProvider`) per cambio provider futuro
+- Cache server-side 6h sugli insight
+- Fallback silenzioso se il servizio AI non è disponibile
 
 ### Infrastructure
 - Docker + Docker Compose (sviluppo locale)
@@ -104,8 +112,9 @@ spendify/
     │   ├── Http/
     │   │   ├── Controllers/
     │   │   └── Requests/       # Form Request (validazione)
+    │   ├── Contracts/           # AiProvider interface
     │   ├── Models/
-    │   └── Services/           # RecurringTransactionService
+    │   └── Services/           # RecurringTransactionService, GroqAiProvider, AiInsightsService
     ├── database/migrations/
     └── routes/api.php
 ```
@@ -117,3 +126,5 @@ spendify/
 **Form Requests** — La validazione è estratta dai controller in classi dedicate (`app/Http/Requests/`). I campi tipizzati usano `Enum` rule. I controller ricevono dati già validati tramite `$request->validated()`.
 
 **Service Layer** — La logica di generazione transazioni da template ricorrenti è in `RecurringTransactionService`, usata sia dal controller che dal cron job.
+
+**AI Provider** — L'integrazione AI è dietro l'interfaccia `AiProvider` (`app/Contracts/`), con implementazione concreta `GroqAiProvider`. Il binding è nel `AppServiceProvider` come singleton. `AiInsightsService` gestisce l'assemblaggio dei dati finanziari e la cache. L'intero layer AI è progettato per fallire silenziosamente: se Groq è down o la API key manca, il frontend mostra i dati statici senza errori visibili.
