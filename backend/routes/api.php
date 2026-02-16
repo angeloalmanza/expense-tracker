@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
@@ -41,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
         'index', 'store', 'update', 'destroy',
     ]);
     Route::patch('/recurring-transactions/{id}/toggle', [RecurringTransactionController::class, 'toggleActive']);
+
+    Route::post('/ai/categorize', [AiController::class, 'categorize']);
+    Route::get('/ai/insights', [AiController::class, 'insights']);
 });
 
 Route::get('/cron/recurring', function () {

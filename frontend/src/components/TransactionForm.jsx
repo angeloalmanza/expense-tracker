@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { inputClass, selectClass } from "../lib/styles";
+import client from "../api/client";
 
 const TransactionForm = ({ addTransaction, categories }) => {
   const [name, setName] = useState("");
@@ -10,12 +11,29 @@ const TransactionForm = ({ addTransaction, categories }) => {
   const [category, setCategory] = useState(categories[0] || "");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const userPickedCategory = useRef(false);
 
   useEffect(() => {
     if (!category && categories.length > 0) {
       setCategory(categories[0]);
     }
   }, [categories]);
+
+  const suggestCategory = async (transactionName) => {
+    if (!transactionName.trim() || categories.length === 0 || userPickedCategory.current) return;
+
+    try {
+      const { data } = await client.post("/api/ai/categorize", {
+        name: transactionName,
+        categories,
+      });
+      if (data.category && !userPickedCategory.current) {
+        setCategory(data.category);
+      }
+    } catch {
+      // fallback silenzioso
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,6 +56,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
       setType("income");
       setCategory(categories[0] || "");
       setDate("");
+      userPickedCategory.current = false;
     } catch {
       toast.error("Errore durante il salvataggio");
     } finally {
@@ -69,6 +88,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
             placeholder="Es. Stipendio"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onBlur={(e) => suggestCategory(e.target.value)}
             className={inputClass}
           />
         </div>
@@ -118,7 +138,10 @@ const TransactionForm = ({ addTransaction, categories }) => {
           </label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              userPickedCategory.current = true;
+            }}
             className={selectClass}
           >
             {categories.map((c) => (

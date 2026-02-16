@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { inputClass, selectClass } from "../lib/styles";
+import client from "../api/client";
 
 const RecurringTransactionForm = ({ addRecurring, categories }) => {
   const [name, setName] = useState("");
@@ -11,12 +12,29 @@ const RecurringTransactionForm = ({ addRecurring, categories }) => {
   const [frequency, setFrequency] = useState("monthly");
   const [startDate, setStartDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const userPickedCategory = useRef(false);
 
   useEffect(() => {
     if (!category && categories.length > 0) {
       setCategory(categories[0]);
     }
   }, [categories]);
+
+  const suggestCategory = async (transactionName) => {
+    if (!transactionName.trim() || categories.length === 0 || userPickedCategory.current) return;
+
+    try {
+      const { data } = await client.post("/api/ai/categorize", {
+        name: transactionName,
+        categories,
+      });
+      if (data.category && !userPickedCategory.current) {
+        setCategory(data.category);
+      }
+    } catch {
+      // fallback silenzioso
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,6 +59,7 @@ const RecurringTransactionForm = ({ addRecurring, categories }) => {
       setCategory(categories[0] || "");
       setFrequency("monthly");
       setStartDate("");
+      userPickedCategory.current = false;
     } catch {
       toast.error("Errore durante il salvataggio");
     } finally {
@@ -63,6 +82,7 @@ const RecurringTransactionForm = ({ addRecurring, categories }) => {
             placeholder="Es. Affitto"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onBlur={(e) => suggestCategory(e.target.value)}
             className={inputClass}
           />
         </div>
@@ -128,7 +148,10 @@ const RecurringTransactionForm = ({ addRecurring, categories }) => {
           </label>
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              userPickedCategory.current = true;
+            }}
             className={selectClass}
           >
             {categories.map((c) => (

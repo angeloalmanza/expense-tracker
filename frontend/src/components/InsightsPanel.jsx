@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import client from "../api/client";
 import { formatCurrency } from "../lib/format";
@@ -88,6 +88,26 @@ const InsightsPanel = ({ transactions, categories }) => {
   const topCategory = Object.entries(currentMonth.perCategory).sort(
     (a, b) => b[1] - a[1],
   )[0];
+
+  const [aiInsights, setAiInsights] = useState(null);
+  const [aiLoading, setAiLoading] = useState(true);
+  const [aiError, setAiError] = useState(false);
+
+  const fetchAiInsights = useCallback(() => {
+    setAiLoading(true);
+    setAiError(false);
+    client.get("/api/ai/insights")
+      .then(({ data }) => {
+        setAiInsights(data.insights || null);
+        if (!data.insights) setAiError(true);
+      })
+      .catch(() => setAiError(true))
+      .finally(() => setAiLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchAiInsights();
+  }, [fetchAiInsights]);
 
   const exceededCategories = budgetCategories.filter((category) => {
     const budgetValue = Number(budgets[category] || 0);
@@ -283,45 +303,71 @@ const InsightsPanel = ({ transactions, categories }) => {
 
           <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">
-              Insight rapide
+              Insight AI
             </h3>
-            <div className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
-              <div className="flex items-center justify-between">
-                <span>Categoria più onerosa</span>
-                <span className="font-semibold">
-                  {topCategory
-                    ? `${topCategory[0]} (${formatCurrency(topCategory[1])})`
-                    : "Nessun dato"}
-                </span>
+
+            {aiLoading && (
+              <div className="flex flex-col gap-3 animate-pulse">
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-4/6" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/6" />
               </div>
-              <div className="flex items-center justify-between">
-                <span>Entrate vs Uscite</span>
-                <span className="font-semibold">
-                  {currentMonth.income === 0 && currentMonth.expense === 0
-                    ? "Nessun dato"
-                    : `${Math.round(
-                        (currentMonth.income /
-                          Math.max(currentMonth.expense, 1)) *
-                          100,
-                      )}%`}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Totale spese mese</span>
-                <span className="font-semibold">
-                  {formatCurrency(currentMonth.expense)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Totale entrate mese</span>
-                <span className="font-semibold">
-                  {formatCurrency(currentMonth.income)}
-                </span>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400 mt-4">
-              I dati sono calcolati sul mese corrente.
-            </p>
+            )}
+
+            {!aiLoading && !aiError && aiInsights && (
+              <>
+                <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  {aiInsights}
+                </p>
+                <p className="text-xs text-slate-400 mt-4">
+                  Generato da AI
+                </p>
+              </>
+            )}
+
+            {!aiLoading && aiError && (
+              <>
+                <div className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between">
+                    <span>Categoria più onerosa</span>
+                    <span className="font-semibold">
+                      {topCategory
+                        ? `${topCategory[0]} (${formatCurrency(topCategory[1])})`
+                        : "Nessun dato"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Entrate vs Uscite</span>
+                    <span className="font-semibold">
+                      {currentMonth.income === 0 && currentMonth.expense === 0
+                        ? "Nessun dato"
+                        : `${Math.round(
+                            (currentMonth.income /
+                              Math.max(currentMonth.expense, 1)) *
+                              100,
+                          )}%`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Totale spese mese</span>
+                    <span className="font-semibold">
+                      {formatCurrency(currentMonth.expense)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Totale entrate mese</span>
+                    <span className="font-semibold">
+                      {formatCurrency(currentMonth.income)}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400 mt-4">
+                  Insight AI non disponibili — dati calcolati localmente.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
