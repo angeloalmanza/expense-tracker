@@ -34,6 +34,7 @@ Ricerca, filtri avanzati, ordinamento colonne e CRUD completo delle transazioni.
 - Grafici interattivi (andamento entrate/uscite, torta per categoria)
 - **Categorie personalizzate** con colore a scelta e modifica inline (nome + colore)
 - **Budget per categoria** con avvisi toast e banner dismissibile quando il budget viene superato
+- **Transazioni ricorrenti** (settimanali/mensili) con generazione automatica e catch-up
 - Ricerca e filtri combinabili per tipo, data e testo
 - Ordinamento per qualsiasi colonna
 - Aggiunta, modifica ed eliminazione transazioni
@@ -64,6 +65,7 @@ Ricerca, filtri avanzati, ordinamento colonne e CRUD completo delle transazioni.
 - Netlify (frontend)
 - Render (backend)
 - Neon (database PostgreSQL)
+- cron-job.org (scheduler ricorrenze)
 
 ## Avvio locale con Docker
 
@@ -82,12 +84,13 @@ spendify/
 │   ├── src/
 │   │   ├── api/            # Axios client
 │   │   ├── context/        # AuthContext
-│   │   ├── hook/           # useAuth, useTransactions, useCategories
+│   │   ├── hook/           # useAuth, useTransactions, useCategories, useRecurringTransactions
 │   │   ├── pages/          # LoginPage, RegisterPage, ProfilePage, ...
 │   │   └── components/     # UI components
 │   └── ...
 └── backend/                # Laravel 11
     ├── app/
+    │   ├── Console/Commands/ # recurring:process
     │   ├── Http/Controllers/
     │   └── Models/
     ├── database/migrations/
