@@ -7,7 +7,50 @@
     <title>Spendify</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        body { margin: 0 }
+        #app-loader {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          gap: 1.5rem;
+          background: #f5f7fb;
+          font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+          animation: fadeIn .4s ease;
+        }
+        @media (prefers-color-scheme: dark) { #app-loader { background: #0b1220 } }
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        #app-loader h1 {
+          font-size: 1.75rem;
+          font-weight: 600;
+          background: linear-gradient(120deg, #0ea5e9, #6366f1);
+          -webkit-background-clip: text;
+          color: transparent;
+          margin: 0;
+        }
+        #app-loader .dots { display: flex; gap: 6px }
+        #app-loader .dots span {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #6366f1;
+          animation: bounce .6s alternate infinite;
+        }
+        #app-loader .dots span:nth-child(2) { animation-delay: .2s }
+        #app-loader .dots span:nth-child(3) { animation-delay: .4s }
+        @keyframes bounce {
+          from { opacity: .3; transform: translateY(0) }
+          to   { opacity: 1;  transform: translateY(-8px) }
+        }
+      </style>
+      <div id="app-loader">
+        <h1>Spendify</h1>
+        <div class="dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
