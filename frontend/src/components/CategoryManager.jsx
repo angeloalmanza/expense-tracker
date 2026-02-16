@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Pencil, Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { inputClass } from "../lib/styles";
 
 const CategoryManager = ({ categories, addCategory, updateCategory, removeCategory }) => {
   const [name, setName] = useState("");
@@ -75,7 +76,7 @@ const CategoryManager = ({ categories, addCategory, updateCategory, removeCatego
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-          className="flex-1 h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className={`flex-1 ${inputClass}`}
         />
         <input
           type="color"

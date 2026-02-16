@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Edit3, GripVertical, Trash2 } from "lucide-react";
+import { formatCurrency } from "../lib/format";
+import TypeBadge from "./ui/TypeBadge";
+import CategoryBadge from "./ui/CategoryBadge";
 
 const TransactionList = ({
   transactions,
@@ -27,11 +30,6 @@ const TransactionList = ({
   useEffect(() => {
     setOrderedTransactions(transactions);
   }, [transactionKey, transactions]);
-
-  const formatter = new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-  });
 
   if (transactions.length === 0)
     return (
@@ -171,40 +169,20 @@ const TransactionList = ({
                   {t.name}
                 </td>
                 <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      t.type === "income"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-rose-100 text-rose-700"
-                    }`}
-                  >
-                    {t.type === "income" ? "Entrata" : "Uscita"}
-                  </span>
+                  <TypeBadge type={t.type} />
                 </td>
                 <td className="p-3 text-slate-600 dark:text-slate-400">
                   {t.date ? new Date(t.date).toLocaleDateString("it-IT") : "-"}
                 </td>
                 <td className="p-3">
-                  {(() => {
-                    const catName = t.category || "Altro";
-                    const catObj = categories.find(c => c.name === catName);
-                    const hex = catObj?.color || "#64748b";
-                    return (
-                      <span
-                        className="px-2 py-1 rounded-full text-xs font-medium"
-                        style={{ backgroundColor: hex + "20", color: hex }}
-                      >
-                        {catName}
-                      </span>
-                    );
-                  })()}
+                  <CategoryBadge name={t.category} categories={categories} />
                 </td>
                 <td
                   className={`p-3 text-right font-semibold tabular-nums ${
                     t.type === "income" ? "text-emerald-600" : "text-rose-600"
                   }`}
                 >
-                  {formatter.format(t.amount)}
+                  {formatCurrency(t.amount)}
                 </td>
                 <td className="p-3 text-right">
                   <button

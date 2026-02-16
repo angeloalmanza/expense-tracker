@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Http\Requests\StoreRecurringTransactionRequest;
+use App\Http\Requests\UpdateRecurringTransactionRequest;
+use App\Services\RecurringTransactionService;
 use Illuminate\Http\Request;
 
 class RecurringTransactionController extends Controller
@@ -13,56 +15,22 @@ class RecurringTransactionController extends Controller
         return response()->json($recurring);
     }
 
-    public function store(Request $request)
+    public function store(StoreRecurringTransactionRequest $request, RecurringTransactionService $service)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'type' => ['required', 'in:income,expense'],
-            'category' => ['required', 'string', 'max:100'],
-            'frequency' => ['required', 'in:weekly,monthly'],
-            'start_date' => ['required', 'date'],
-        ]);
-
+        $validated = $request->validated();
         $validated['next_occurrence'] = $validated['start_date'];
 
         $recurring = $request->user()->recurringTransactions()->create($validated);
 
-        $today = Carbon::today();
-
-        while ($recurring->next_occurrence->lte($today)) {
-            $request->user()->transactions()->create([
-                'name' => $recurring->name,
-                'amount' => $recurring->amount,
-                'type' => $recurring->type,
-                'category' => $recurring->category,
-                'date' => $recurring->next_occurrence->toDateString(),
-            ]);
-
-            $recurring->next_occurrence = $recurring->frequency === 'weekly'
-                ? $recurring->next_occurrence->addWeek()
-                : $recurring->next_occurrence->addMonth();
-        }
-
-        $recurring->save();
+        $service->generateDueTransactions($recurring);
 
         return response()->json($recurring->fresh(), 201);
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateRecurringTransactionRequest $request, string $id)
     {
         $recurring = $request->user()->recurringTransactions()->findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'amount' => ['sometimes', 'numeric', 'min:0'],
-            'type' => ['sometimes', 'in:income,expense'],
-            'category' => ['sometimes', 'string', 'max:100'],
-            'frequency' => ['sometimes', 'in:weekly,monthly'],
-            'start_date' => ['sometimes', 'date'],
-        ]);
-
-        $recurring->update($validated);
+        $recurring->update($request->validated());
 
         return response()->json($recurring);
     }

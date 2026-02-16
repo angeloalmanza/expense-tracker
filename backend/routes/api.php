@@ -17,28 +17,31 @@ Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum')->apiResource('transactions', TransactionController::class)->only([
-    'index', 'store', 'update', 'destroy',
-]);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 
-Route::middleware('auth:sanctum')->put('/profile', [ProfileController::class, 'update']);
+    Route::apiResource('transactions', TransactionController::class)->only([
+        'index', 'store', 'update', 'destroy',
+    ]);
 
-Route::middleware('auth:sanctum')->get('/budgets', [BudgetController::class, 'index']);
-Route::middleware('auth:sanctum')->post('/budgets', [BudgetController::class, 'store']);
-Route::middleware('auth:sanctum')->delete('/budgets/{budget}', [BudgetController::class, 'destroy']);
+    Route::put('/profile', [ProfileController::class, 'update']);
 
-Route::middleware('auth:sanctum')->get('/categories', [CategoryController::class, 'index']);
-Route::middleware('auth:sanctum')->post('/categories', [CategoryController::class, 'store']);
-Route::middleware('auth:sanctum')->put('/categories/{category}', [CategoryController::class, 'update']);
-Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::get('/budgets', [BudgetController::class, 'index']);
+    Route::post('/budgets', [BudgetController::class, 'store']);
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->apiResource('recurring-transactions', RecurringTransactionController::class)->only([
-    'index', 'store', 'update', 'destroy',
-]);
-Route::middleware('auth:sanctum')->patch('/recurring-transactions/{id}/toggle', [RecurringTransactionController::class, 'toggleActive']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::apiResource('recurring-transactions', RecurringTransactionController::class)->only([
+        'index', 'store', 'update', 'destroy',
+    ]);
+    Route::patch('/recurring-transactions/{id}/toggle', [RecurringTransactionController::class, 'toggleActive']);
+});
 
 Route::get('/cron/recurring', function () {
     if (request()->query('token') !== env('CRON_TOKEN')) {

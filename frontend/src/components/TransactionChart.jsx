@@ -12,6 +12,7 @@ import {
   YAxis,
   Cell,
 } from "recharts";
+import { formatCurrency } from "../lib/format";
 
 const INCOME_COLOR = "#22c55e";
 const EXPENSE_COLOR = "#ef4444";
@@ -36,13 +37,6 @@ const INCOME_CATEGORY_COLORS = [
   "#2dd4bf",
   "#5eead4",
 ];
-
-const currencyFormatter = new Intl.NumberFormat("it-IT", {
-  style: "currency",
-  currency: "EUR",
-});
-
-const formatCurrency = (value) => currencyFormatter.format(value || 0);
 
 const formatMonthLabel = (date) =>
   new Intl.DateTimeFormat("it-IT", {

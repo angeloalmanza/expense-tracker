@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import client from "../api/client";
-
-const currencyFormatter = new Intl.NumberFormat("it-IT", {
-  style: "currency",
-  currency: "EUR",
-});
-
-const formatCurrency = (value) => currencyFormatter.format(value || 0);
+import { formatCurrency } from "../lib/format";
 
 const parseLocalDate = (value) => {
   if (!value) return null;

@@ -56,7 +56,7 @@ class BudgetTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/budgets', ['category' => 'Cibo', 'amount' => 500]);
 
-        $response->assertStatus(201)
+        $response->assertStatus(200)
             ->assertJsonFragment(['amount' => 500.0]);
 
         $this->assertDatabaseCount('budgets', 1);

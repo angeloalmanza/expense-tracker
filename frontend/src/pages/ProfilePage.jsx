@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -55,18 +55,8 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen app-shell">
-      <div className="mx-auto max-w-2xl px-4 py-6 md:py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <Link
-            to="/"
-            className="text-sm text-indigo-500 hover:underline cursor-pointer"
-          >
-            ← Dashboard
-          </Link>
-        </div>
-
-        <h1 className="text-3xl font-semibold text-gradient mb-6">Profilo</h1>
+    <div className="max-w-2xl">
+      <h1 className="text-3xl font-semibold text-gradient mb-6">Profilo</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Avatar grid */}
@@ -196,7 +186,6 @@ const ProfilePage = () => {
             {submitting ? "Salvataggio..." : "Salva modifiche"}
           </button>
         </form>
-      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
+import { formatCurrency } from "../lib/format";
 
 const BalanceCard = ({ transactions }) => {
   const income = transactions
@@ -10,10 +11,6 @@ const BalanceCard = ({ transactions }) => {
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
   const balance = income - expenses;
-  const formatter = new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-  });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -27,7 +24,7 @@ const BalanceCard = ({ transactions }) => {
             balance >= 0 ? "text-emerald-600" : "text-rose-600"
           }`}
         >
-          {formatter.format(balance)}
+          {formatCurrency(balance)}
         </p>
       </div>
       <div className="glass-card p-4 rounded-2xl">
@@ -36,7 +33,7 @@ const BalanceCard = ({ transactions }) => {
           Entrate
         </div>
         <p className="mt-2 text-2xl font-semibold text-emerald-600">
-          {formatter.format(income)}
+          {formatCurrency(income)}
         </p>
       </div>
       <div className="glass-card p-4 rounded-2xl">
@@ -45,7 +42,7 @@ const BalanceCard = ({ transactions }) => {
           Uscite
         </div>
         <p className="mt-2 text-2xl font-semibold text-rose-600">
-          {formatter.format(expenses)}
+          {formatCurrency(expenses)}
         </p>
       </div>
     </div>

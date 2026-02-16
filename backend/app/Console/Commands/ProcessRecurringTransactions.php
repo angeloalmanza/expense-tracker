@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\RecurringTransaction;
+use App\Services\RecurringTransactionService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -12,7 +13,7 @@ class ProcessRecurringTransactions extends Command
 
     protected $description = 'Generate transactions from active recurring templates';
 
-    public function handle(): int
+    public function handle(RecurringTransactionService $service): int
     {
         $today = Carbon::today();
 
@@ -23,23 +24,7 @@ class ProcessRecurringTransactions extends Command
         $count = 0;
 
         foreach ($recurrences as $recurring) {
-            while ($recurring->next_occurrence->lte($today)) {
-                $recurring->user->transactions()->create([
-                    'name' => $recurring->name,
-                    'amount' => $recurring->amount,
-                    'type' => $recurring->type,
-                    'category' => $recurring->category,
-                    'date' => $recurring->next_occurrence->toDateString(),
-                ]);
-
-                $recurring->next_occurrence = $recurring->frequency === 'weekly'
-                    ? $recurring->next_occurrence->addWeek()
-                    : $recurring->next_occurrence->addMonth();
-
-                $count++;
-            }
-
-            $recurring->save();
+            $count += $service->generateDueTransactions($recurring, $today);
         }
 
         $this->info("Generated {$count} transactions from recurring templates.");

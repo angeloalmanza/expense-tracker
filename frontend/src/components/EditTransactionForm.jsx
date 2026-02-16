@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Save } from "lucide-react";
 import toast from "react-hot-toast";
+import { inputClass, selectClass } from "../lib/styles";
 
 const EditTransactionForm = ({
   editingTransaction,
@@ -65,20 +66,20 @@ const EditTransactionForm = ({
         value={name}
         ref={nameInputRef}
         onChange={(e) => setName(e.target.value)}
-        className="flex-1 border border-slate-200 p-2 rounded-lg bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className={`flex-1 ${inputClass}`}
       />
 
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        className="flex-1 border border-slate-200 p-2 rounded-lg bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className={`flex-1 ${inputClass}`}
       />
 
       <select
         value={type}
         onChange={(e) => setType(e.target.value)}
-        className="flex-1 border border-slate-200 p-2 rounded-lg cursor-pointer bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className={`flex-1 ${selectClass}`}
       >
         <option value="income">Entrata</option>
         <option value="expense">Uscita</option>
@@ -88,13 +89,13 @@ const EditTransactionForm = ({
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="flex-1 border border-slate-200 p-2 rounded-lg cursor-pointer bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className={`flex-1 ${selectClass}`}
       />
 
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
-        className="flex-1 border border-slate-200 p-2 rounded-lg cursor-pointer bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className={`flex-1 ${selectClass}`}
       >
         {categories.map((c) => (
           <option key={c} value={c}>

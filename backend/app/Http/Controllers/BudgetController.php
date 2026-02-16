@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBudgetRequest;
 use Illuminate\Http\Request;
 
 class BudgetController extends Controller
@@ -12,19 +13,16 @@ class BudgetController extends Controller
         return response()->json($budgets);
     }
 
-    public function store(Request $request)
+    public function store(StoreBudgetRequest $request)
     {
-        $validated = $request->validate([
-            'category' => ['required', 'string', 'max:100'],
-            'amount' => ['required', 'numeric', 'min:0'],
-        ]);
+        $validated = $request->validated();
 
         $budget = $request->user()->budgets()->updateOrCreate(
             ['category' => $validated['category']],
             ['amount' => $validated['amount']],
         );
 
-        return response()->json($budget, 201);
+        return response()->json($budget, $budget->wasRecentlyCreated ? 201 : 200);
     }
 
     public function destroy(Request $request, string $id)

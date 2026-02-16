@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
+import { selectClass } from "../lib/styles";
 
-const inputClass =
+const filterInputClass =
   "h-9 border border-slate-200 rounded-lg px-3 text-sm text-slate-700 bg-white cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
 
 const FilterBar = ({
@@ -62,7 +63,7 @@ const FilterBar = ({
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className={inputClass}
+          className={filterInputClass}
         >
           <option value="all">Tutte le categorie</option>
           {categories.map((cat) => (
@@ -83,14 +84,14 @@ const FilterBar = ({
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className={inputClass}
+            className={filterInputClass}
           />
           <span className="text-xs text-slate-400 dark:text-slate-500">—</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className={inputClass}
+            className={filterInputClass}
           />
         </div>
       </div>

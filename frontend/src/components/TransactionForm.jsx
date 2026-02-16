@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { inputClass, selectClass } from "../lib/styles";
 
 const TransactionForm = ({ addTransaction, categories }) => {
   const [name, setName] = useState("");
@@ -9,6 +10,12 @@ const TransactionForm = ({ addTransaction, categories }) => {
   const [category, setCategory] = useState(categories[0] || "");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!category && categories.length > 0) {
+      setCategory(categories[0]);
+    }
+  }, [categories]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +69,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
             placeholder="Es. Stipendio"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className={inputClass}
           />
         </div>
 
@@ -75,7 +82,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
             placeholder="0,00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className={inputClass}
           />
         </div>
 
@@ -86,7 +93,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className={selectClass}
           >
             <option value="income">Entrata</option>
             <option value="expense">Uscita</option>
@@ -101,7 +108,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className={selectClass}
           />
         </div>
 
@@ -112,7 +119,7 @@ const TransactionForm = ({ addTransaction, categories }) => {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-slate-700 bg-white cursor-pointer dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            className={selectClass}
           >
             {categories.map((c) => (
               <option key={c} value={c}>
