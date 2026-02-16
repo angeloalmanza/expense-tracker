@@ -6,7 +6,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\RecurringTransactionController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -32,3 +34,18 @@ Route::middleware('auth:sanctum')->get('/categories', [CategoryController::class
 Route::middleware('auth:sanctum')->post('/categories', [CategoryController::class, 'store']);
 Route::middleware('auth:sanctum')->put('/categories/{category}', [CategoryController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->apiResource('recurring-transactions', RecurringTransactionController::class)->only([
+    'index', 'store', 'update', 'destroy',
+]);
+Route::middleware('auth:sanctum')->patch('/recurring-transactions/{id}/toggle', [RecurringTransactionController::class, 'toggleActive']);
+
+Route::get('/cron/recurring', function () {
+    if (request()->query('token') !== env('CRON_TOKEN')) {
+        abort(403);
+    }
+
+    Artisan::call('recurring:process');
+
+    return response()->json(['status' => 'ok']);
+});

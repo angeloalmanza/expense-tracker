@@ -6,11 +6,15 @@ const useTransactions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchTransactions = () => {
     client.get('/api/transactions')
       .then(res => setTransactions(res.data))
       .catch(err => setError(err))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchTransactions();
   }, []);
 
   const addTransaction = async (transaction) => {
@@ -30,7 +34,7 @@ const useTransactions = () => {
     return res.data;
   };
 
-  return { transactions, loading, error, addTransaction, removeTransaction, updateTransaction };
+  return { transactions, loading, error, addTransaction, removeTransaction, updateTransaction, refreshTransactions: fetchTransactions };
 };
 
 export default useTransactions;

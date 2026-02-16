@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useTransactions from "./hook/useTransactions";
 import useCategories from "./hook/useCategories";
+import useRecurringTransactions from "./hook/useRecurringTransactions";
 import { useAuthContext } from "./context/AuthContext";
 import BalanceCard from "./components/BalanceCard";
 import TransactionForm from "./components/TransactionForm";
 import TransactionList from "./components/TransactionList";
+import RecurringTransactionForm from "./components/RecurringTransactionForm";
+import RecurringTransactionList from "./components/RecurringTransactionList";
 import FilterBar from "./components/FilterBar";
 import SearchBar from "./components/SearchBar";
 import TransactionsChart from "./components/TransactionChart";
@@ -14,6 +17,7 @@ import ConfirmModal from "./components/ConfirmModal";
 import EditModal from "./components/EditModal";
 import EditTransactionForm from "./components/EditTransactionForm";
 import CategoryManager from "./components/CategoryManager";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import toast from "react-hot-toast";
 
@@ -41,10 +45,18 @@ const PAGE_SIZE = 10;
 const App = () => {
   const { user, logout } = useAuthContext();
   const [loggingOut, setLoggingOut] = useState(false);
-  const { transactions, addTransaction, updateTransaction, removeTransaction } =
+  const { transactions, addTransaction, updateTransaction, removeTransaction, refreshTransactions } =
     useTransactions();
   const { categories, addCategory, updateCategory, removeCategory } = useCategories();
+  const {
+    recurringTransactions,
+    addRecurring,
+    removeRecurring,
+    toggleRecurring,
+  } = useRecurringTransactions();
   const categoryNames = categories.map((c) => c.name).sort();
+
+  const [recurringOpen, setRecurringOpen] = useState(false);
 
   const [filter, setFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -325,6 +337,48 @@ const App = () => {
           updateCategory={updateCategory}
           removeCategory={removeCategory}
         />
+
+        <div className="glass-card p-4 rounded-2xl mb-6">
+          <button
+            type="button"
+            onClick={() => setRecurringOpen((o) => !o)}
+            className="w-full flex items-center justify-between cursor-pointer"
+          >
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                Transazioni ricorrenti
+              </h2>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                {recurringTransactions.filter((r) => r.is_active).length} attive su{" "}
+                {recurringTransactions.length} totali
+              </p>
+            </div>
+            {recurringOpen ? (
+              <ChevronUp className="w-5 h-5 text-slate-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-slate-400" />
+            )}
+          </button>
+
+          {recurringOpen && (
+            <div className="mt-4 flex flex-col gap-4">
+              <RecurringTransactionForm
+                addRecurring={async (data) => {
+                  const result = await addRecurring(data);
+                  refreshTransactions();
+                  return result;
+                }}
+                categories={categoryNames}
+              />
+              <RecurringTransactionList
+                recurringTransactions={recurringTransactions}
+                toggleRecurring={toggleRecurring}
+                removeRecurring={removeRecurring}
+                categories={categories}
+              />
+            </div>
+          )}
+        </div>
 
         <TransactionForm
           categories={categoryNames}

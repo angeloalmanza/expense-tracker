@@ -22,6 +22,21 @@ services:
       db:
         condition: service_healthy
 
+  scheduler:
+    build: ./backend
+    entrypoint: ["sh", "-c", "while true; do php artisan schedule:run --verbose; sleep 60; done"]
+    volumes:
+      - ./backend:/var/www
+      - /var/www/vendor
+    environment:
+      DB_HOST: db
+      DB_DATABASE: expense_tracker
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:16-alpine
     ports: ["5432:5432"]
