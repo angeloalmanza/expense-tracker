@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/ai/categorize', [AiController::class, 'categorize']);
     Route::get('/ai/insights', [AiController::class, 'insights']);
+    Route::delete('/ai/insights/cache', [AiController::class, 'clearInsightsCache']);
 });
 
 Route::get('/cron/recurring', function () {

@@ -25,4 +25,11 @@ class AiController extends Controller
 
         return response()->json(['insights' => $insights]);
     }
+
+    public function clearInsightsCache(Request $request, AiInsightsService $service)
+    {
+        $service->clearCache($request->user());
+
+        return response()->json(['status' => 'ok']);
+    }
 }
