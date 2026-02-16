@@ -127,4 +127,8 @@ spendify/
 
 **Service Layer** — La logica di generazione transazioni da template ricorrenti è in `RecurringTransactionService`, usata sia dal controller che dal cron job.
 
-**AI Provider** — L'integrazione AI è dietro l'interfaccia `AiProvider` (`app/Contracts/`), con implementazione concreta `GroqAiProvider`. Il binding è nel `AppServiceProvider` come singleton. `AiInsightsService` gestisce l'assemblaggio dei dati finanziari e la cache. L'intero layer AI è progettato per fallire silenziosamente: se Groq è down o la API key manca, il frontend mostra i dati statici senza errori visibili.
+**AI Provider** — L'integrazione AI è dietro l'interfaccia `AiProvider` (`app/Contracts/`), con implementazione concreta `GroqAiProvider`. Il binding è nel `AppServiceProvider` come singleton. `AiInsightsService` gestisce l'assemblaggio dei dati finanziari e la cache (6h). L'intero layer AI è progettato per fallire silenziosamente: se Groq è down o la API key manca, il frontend mostra i dati statici senza errori visibili. Per svuotare manualmente la cache degli insight:
+
+```
+DELETE /api/ai/insights/cache   (richiede autenticazione)
+```
