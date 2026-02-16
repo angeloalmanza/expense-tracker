@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/recurring-transactions/{id}/toggle', [RecurringTransactionController::class, 'toggleActive']);
 
     Route::post('/ai/categorize', [AiController::class, 'categorize']);
+    Route::post('/ai/parse-transaction', [AiController::class, 'parseTransaction']);
     Route::get('/ai/insights', [AiController::class, 'insights']);
     Route::delete('/ai/insights/cache', [AiController::class, 'clearInsightsCache']);
 });

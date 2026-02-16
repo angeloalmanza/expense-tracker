@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Sparkles, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { inputClass, selectClass } from "../lib/styles";
 import client from "../api/client";
@@ -11,6 +11,8 @@ const TransactionForm = ({ addTransaction, categories }) => {
   const [category, setCategory] = useState(categories[0] || "");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiText, setAiText] = useState("");
+  const [parsing, setParsing] = useState(false);
   const userPickedCategory = useRef(false);
 
   useEffect(() => {
@@ -32,6 +34,34 @@ const TransactionForm = ({ addTransaction, categories }) => {
       }
     } catch {
       // fallback silenzioso
+    }
+  };
+
+  const handleAiParse = async () => {
+    if (!aiText.trim() || categories.length === 0) return;
+
+    setParsing(true);
+    try {
+      const { data } = await client.post("/api/ai/parse-transaction", {
+        text: aiText,
+        categories,
+      });
+      if (data.transaction) {
+        setName(data.transaction.name);
+        setAmount(String(data.transaction.amount));
+        setType(data.transaction.type);
+        setCategory(data.transaction.category);
+        setDate(data.transaction.date);
+        userPickedCategory.current = true;
+        setAiText("");
+        toast.success("Campi compilati dall'AI — controlla e conferma");
+      } else {
+        toast.error("Non sono riuscito a interpretare il testo");
+      }
+    } catch {
+      toast.error("Non sono riuscito a interpretare il testo");
+    } finally {
+      setParsing(false);
     }
   };
 
@@ -76,6 +106,35 @@ const TransactionForm = ({ addTransaction, categories }) => {
         <p className="text-xs text-slate-400 dark:text-slate-500">
           I campi con * sono obbligatori
         </p>
+      </div>
+
+      <div className="flex gap-2 items-center border border-indigo-300/50 dark:border-indigo-500/30 rounded-xl p-2 bg-indigo-50/30 dark:bg-indigo-950/20">
+        <input
+          type="text"
+          placeholder="Es. Speso 25 euro al supermercato ieri"
+          value={aiText}
+          onChange={(e) => setAiText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAiParse();
+            }
+          }}
+          disabled={parsing}
+          className={`${inputClass} flex-1`}
+        />
+        <button
+          type="button"
+          onClick={handleAiParse}
+          disabled={parsing || !aiText.trim()}
+          className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-10 w-10 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors cursor-pointer shrink-0"
+        >
+          {parsing ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Sparkles className="w-4 h-4" />
+          )}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">

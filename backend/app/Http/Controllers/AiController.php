@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AiProvider;
 use App\Http\Requests\AiCategorizeRequest;
+use App\Http\Requests\AiParseTransactionRequest;
 use App\Services\AiInsightsService;
 use Illuminate\Http\Request;
 
@@ -31,5 +32,16 @@ class AiController extends Controller
         $service->clearCache($request->user());
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function parseTransaction(AiParseTransactionRequest $request, AiProvider $ai)
+    {
+        $transaction = $ai->parseTransaction(
+            $request->validated('text'),
+            $request->validated('categories'),
+            now()->toDateString(),
+        );
+
+        return response()->json(['transaction' => $transaction]);
     }
 }
