@@ -1,57 +1,63 @@
 # Spendify
 
-Una web app fullstack per gestire entrate e uscite con dashboard interattiva, analisi avanzate e una UI moderna. Autenticazione con email/password e Google OAuth, reset password via email, dati persistenti su database e deploy su cloud.
+Web app fullstack per la gestione di entrate e uscite personali. Dashboard con grafici interattivi, budget per categoria, transazioni ricorrenti, dark mode e navigazione a pagine con sidebar.
 
 ## Demo
 
 Live: [spendify-app.netlify.app](https://spendify-app.netlify.app/)
 
+## Screenshot
+
 ### Login
 
 ![Login](./docs/login.png)
-Autenticazione con email e password o tramite Google OAuth. Sessione persistente tramite token.
 
-### Dashboard — Analisi e trend
+### Dashboard
 
-![Charts](./docs/charts.png)
-Trend mensili di entrate, uscite e saldo netto con grafici interattivi.
+![Dashboard](./docs/dashboard.png)
 
-### Dashboard — Confronto mensile
+### Transazioni
 
-![Monthly comparison](./docs/budget.png)
-Confronto con il mese precedente e analisi per categoria.
+![Transazioni](./docs/transactions.png)
 
-### Dashboard — Transazioni
+### Ricorrenti
 
-![Transactions](./docs/transactions.png)
-Ricerca, filtri avanzati, ordinamento colonne e CRUD completo delle transazioni.
+![Ricorrenti](./docs/recurring.png)
 
-## Funzionalità principali
+### Categorie
+
+![Categorie](./docs/categories.png)
+
+### Dark mode
+
+![Dark mode](./docs/dark-mode.png)
+
+## Funzionalità
 
 - Autenticazione con email + password e **Google OAuth**
 - **Reset password** via email (Resend)
-- Dashboard completa con KPI, trend mensili e breakdown per categoria
-- Grafici interattivi (andamento entrate/uscite, torta per categoria)
-- **Categorie personalizzate** con colore a scelta e modifica inline (nome + colore)
-- **Budget per categoria** con avvisi toast e banner dismissibile quando il budget viene superato
+- Navigazione a pagine con **sidebar** responsive
+- Dashboard con KPI, trend mensili e breakdown per categoria
+- Grafici interattivi (barre entrate/uscite, donut per categoria)
+- **Categorie personalizzate** con colore a scelta e modifica inline
+- **Budget per categoria** con avviso quando viene superato
 - **Transazioni ricorrenti** (settimanali/mensili) con generazione automatica e catch-up
-- Ricerca e filtri combinabili per tipo, data e testo
-- Ordinamento per qualsiasi colonna
-- Aggiunta, modifica ed eliminazione transazioni
-- Export CSV e JSON di tutte le transazioni
+- Ricerca, filtri combinabili (tipo, data, categoria) e ordinamento colonne
+- Aggiunta, modifica inline ed eliminazione transazioni
+- Export CSV e JSON
+- Paginazione tabella transazioni
 - Profilo utente con selezione avatar
-- Dark / Light mode con preferenza salvata
-- Dati persistenti su database PostgreSQL
+- **Dark / Light mode** con preferenza salvata
 
 ## Tech Stack
 
 ### Frontend
 - React 19 + Vite
 - Tailwind CSS v4
-- Recharts
+- React Router (navigazione a pagine)
+- Recharts (grafici)
 - Lucide Icons
 - Axios
-- React Router
 
 ### Backend
 - Laravel 11
@@ -59,6 +65,7 @@ Ricerca, filtri avanzati, ordinamento colonne e CRUD completo delle transazioni.
 - Laravel Socialite (Google OAuth)
 - Resend (email transazionali)
 - PostgreSQL
+- PHP Enums + Form Requests + Service layer
 
 ### Infrastructure
 - Docker + Docker Compose (sviluppo locale)
@@ -67,7 +74,7 @@ Ricerca, filtri avanzati, ordinamento colonne e CRUD completo delle transazioni.
 - Neon (database PostgreSQL)
 - cron-job.org (scheduler ricorrenze)
 
-## Avvio locale con Docker
+## Avvio locale
 
 ```bash
 docker compose up --build
@@ -80,19 +87,33 @@ App disponibile su [http://localhost:5173](http://localhost:5173)
 ```
 spendify/
 ├── docker-compose.yml
-├── frontend/               # React + Vite
+├── frontend/                   # React + Vite
 │   ├── src/
-│   │   ├── api/            # Axios client
-│   │   ├── context/        # AuthContext
-│   │   ├── hook/           # useAuth, useTransactions, useCategories, useRecurringTransactions
-│   │   ├── pages/          # LoginPage, RegisterPage, ProfilePage, ...
-│   │   └── components/     # UI components
+│   │   ├── api/                # Axios client
+│   │   ├── context/            # AuthContext, ThemeContext
+│   │   ├── hook/               # Custom hooks (auth, transactions, categories, recurring)
+│   │   ├── layouts/            # AppLayout, Sidebar
+│   │   ├── lib/                # Utility (format, export, styles)
+│   │   ├── pages/              # Dashboard, Transactions, Recurring, Categories, Profile
+│   │   └── components/         # UI components
 │   └── ...
-└── backend/                # Laravel 11
+└── backend/                    # Laravel 11
     ├── app/
-    │   ├── Console/Commands/ # recurring:process
-    │   ├── Http/Controllers/
-    │   └── Models/
+    │   ├── Console/Commands/   # recurring:process
+    │   ├── Enums/              # TransactionType, Frequency
+    │   ├── Http/
+    │   │   ├── Controllers/
+    │   │   └── Requests/       # Form Request (validazione)
+    │   ├── Models/
+    │   └── Services/           # RecurringTransactionService
     ├── database/migrations/
     └── routes/api.php
 ```
+
+## Architettura backend
+
+**Enums** — I valori `income`/`expense` e `weekly`/`monthly` sono PHP backed enums castati nei model Eloquent. Elimina le magic strings e centralizza i valori validi.
+
+**Form Requests** — La validazione è estratta dai controller in classi dedicate (`app/Http/Requests/`). I campi tipizzati usano `Enum` rule. I controller ricevono dati già validati tramite `$request->validated()`.
+
+**Service Layer** — La logica di generazione transazioni da template ricorrenti è in `RecurringTransactionService`, usata sia dal controller che dal cron job.
